@@ -173,13 +173,16 @@ JSONAssert.assertEquals(
     }
 
     // match redirect header URL (aka Location header)
-    private static ResultMatcher redirectedUrlPattern(final String expectedUrlPattern) {
-        return new ResultMatcher() {
-            public void match(MvcResult result) {
+private static ResultMatcher redirectedUrlPattern(final String expectedUrlPattern) {
+    return new ResultMatcher() {
+        public void match(MvcResult result) {
+            String redirectedUrl = result.getResponse().getRedirectedUrl();
+            try {
                 Pattern pattern = Pattern.compile("\\A" + expectedUrlPattern + "\\z");
-                assertTrue(pattern.matcher(result.getResponse().getRedirectedUrl()).find());
+                assertTrue(pattern.matcher(redirectedUrl).find());
+            } catch (PatternSyntaxException e) {
+                fail("Invalid URL pattern: " + expectedUrlPattern + "\nError: " + e.getMessage());
             }
-        };
-    }
-
+        }
+    };
 }
